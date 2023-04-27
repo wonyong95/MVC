@@ -56,6 +56,30 @@ public class BoardDAO {
 		}
 	}
 	
+	public List<BoardVO> findBoard(int start, int end, String findType, String findKeyword) throws SQLException {
+		try {
+			con=DBUtil.getCon();
+			String colName=getColumnName(findType);//검색유형 관련한 컬럼명 얻어오기
+			StringBuilder buf=new StringBuilder("select * from ( ")
+					.append(" select rownum rn, A.* from")
+					.append(" (select * from board where "+colName+ " like ? ")
+					.append(" order by num desc) A ) ")
+					.append(" where rn between ? and ?");
+			String sql=buf.toString();
+			System.out.println(sql);
+			ps=con.prepareStatement(sql);
+			ps.setString(1, "%"+findKeyword+"%");
+			ps.setInt(2, start);
+			ps.setInt(3, end);
+			rs=ps.executeQuery();
+			return makeList(rs);
+		}finally {
+			close();
+		}
+		
+	}//------------------------
+
+	
 	
 	public List<BoardVO> makeList(ResultSet rs) throws SQLException{
 		List<BoardVO> arr=new ArrayList<>();
@@ -73,11 +97,31 @@ public class BoardDAO {
 		}
 		return arr;
 	}//------------------------------------------------
-	public int getTotalCount()  throws SQLException{
+	public String getColumnName(String type) {
+		String colName="";
+		switch(type) {
+		case "1": colName="subject"; break;
+		case "2": colName="userid"; break;
+		case "3": colName="content"; break;
+		}
+		return colName;
+	}
+	
+	public int getTotalCount(String type, String keyword)  throws SQLException{
 		try {
 			con=DBUtil.getCon();
-			String sql="select count(num) from board";
+			StringBuilder buf=new StringBuilder("select count(num) cnt from board");
+			if(!type.trim().isEmpty() && !keyword.trim().isEmpty()) {
+				//검색유형과 검색어가 들어왔다면
+				String colName=getColumnName(type);
+				buf.append(" where "+colName+" like ?");
+			}
+			String sql=buf.toString();
+			System.out.println(sql);
 			ps=con.prepareStatement(sql);
+			if(!type.trim().isEmpty() && !keyword.trim().isEmpty()){
+				ps.setString(1, "%"+keyword+"%");
+			}
 			rs=ps.executeQuery();
 			rs.next();
 			int cnt=rs.getInt(1);
@@ -167,7 +211,7 @@ public class BoardDAO {
 			e.printStackTrace();
 		}
 	}//------------------------------
-
+	
 	
 	
 	

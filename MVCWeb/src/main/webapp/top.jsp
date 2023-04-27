@@ -19,7 +19,9 @@
     <link rel="stylesheet" type="text/css" href="${myctx}/css/layout.css">
     <!-- http://localhost:9090/css/layout.css -->
     <!-- "webapps/ROOT" ===>"/" -->
-    
+      <!-- jquery라이브러리 CDN방식으로 참조 ----------------------- -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <!-- ------------------------------------------------------- -->
 </head>
 <body>
     <div id="wrap">
